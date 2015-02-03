@@ -16,6 +16,8 @@ Executable Main
                   persistent ,
                   persistent-sqlite ,
                   persistent-template ,
+                  shakespeare,
+                  shakespeare-text,
                   MissingH 
   Main-Is:        Main.hs
   Hs-Source-Dirs: .

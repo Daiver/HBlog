@@ -49,6 +49,20 @@
   (major1) == 0 && (major2) <  9 || \
   (major1) == 0 && (major2) == 9 && (minor) <= 0)
 
+/* package shakespeare-2.0.2.1 */
+#define VERSION_shakespeare "2.0.2.1"
+#define MIN_VERSION_shakespeare(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  0 || \
+  (major1) == 2 && (major2) == 0 && (minor) <= 2)
+
+/* package shakespeare-text-1.1.0 */
+#define VERSION_shakespeare_text "1.1.0"
+#define MIN_VERSION_shakespeare_text(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  1 || \
+  (major1) == 1 && (major2) == 1 && (minor) <= 0)
+
 /* package text-0.11.3.1 */
 #define VERSION_text "0.11.3.1"
 #define MIN_VERSION_text(major1,major2,minor) (\
