@@ -1,0 +1,21 @@
+Name:           TestPackage
+Version:        0.0
+Cabal-Version:  >= 1.2
+License:        BSD3
+Author:         Dark Daiver
+Synopsis:       Small package with program and tests
+Build-Type:     Simple
+
+Executable Main
+  Build-Depends:  base,
+                  text ,
+                  time ,
+                  transformers ,
+                  containers ,
+                  scotty ,
+                  persistent ,
+                  persistent-sqlite ,
+                  persistent-template ,
+                  MissingH 
+  Main-Is:        Main.hs
+  Hs-Source-Dirs: .
