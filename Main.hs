@@ -30,6 +30,9 @@ import Database.Persist.TH
 import Database.Persist.Sql
 import Database.Persist.Types 
 
+import Text.Blaze.Html.Renderer.String
+import Text.Hamlet
+
 import qualified Data.Text.Lazy.IO as TLIO
 import qualified Data.String.Utils as SUtils
 
@@ -128,9 +131,10 @@ main = do
             t <- liftIO . runDb $ get (key::Key Post)
             case t of
                 Nothing -> S.html "No post"
-                Just x -> do
+                Just post -> do
                     tags <- liftIO . runDb $ selectManyToMany TagPostPostId tagPostTagId key
-                    S.html $ pack $ renderOnePost $ Map.fromList [("content", renderPost $ dictForPost tags (Entity key x))]
+                    --S.html $ pack $ renderOnePost $ Map.fromList [("content", renderPost $ dictForPost tags (Entity key x))]
+                    S.html $ pack $ renderHtml $ $(shamletFile "./templates/post.hamlet")
 
         S.post "/addPost" $ do
             caption <- S.param "caption"

@@ -14,6 +14,13 @@
   (major1) == 4 && (major2) <  6 || \
   (major1) == 4 && (major2) == 6 && (minor) <= 0)
 
+/* package blaze-html-0.7.0.3 */
+#define VERSION_blaze_html "0.7.0.3"
+#define MIN_VERSION_blaze_html(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  7 || \
+  (major1) == 0 && (major2) == 7 && (minor) <= 0)
+
 /* package containers-0.5.0.0 */
 #define VERSION_containers "0.5.0.0"
 #define MIN_VERSION_containers(major1,major2,minor) (\
