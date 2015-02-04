@@ -1,0 +1,10 @@
+<form id=frm method=POST action='#{hostname}/addPost'>
+    Caption
+    <input id=txt name=caption>
+    <br>
+    <textarea id=txt name=text>
+    <br>
+    <h5>Tags
+    <input id=tags name=tags>
+    <br>
+    <input type=submit>

@@ -1,0 +1,5 @@
+<h2>The Great Nothing
+<div class="starter-template">
+    $forall post <- posts
+        ^{post}
+^{postForm}

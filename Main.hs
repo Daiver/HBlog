@@ -90,6 +90,7 @@ addPostToDb caption text time tags = do
                 Just val -> return $ entityKey val
                 Nothing  -> return =<< insert $ Tag tag ""
 
+
 runDb = runSqlite "/home/daiver/jour.sqlite3"
 
 persistInt64FromParam = PersistInt64 . fromIntegral . read 
@@ -101,20 +102,13 @@ main = do
     formHtml  <- readFile "templates/newPostForm.html"
     postHtml  <- readFile "templates/post.html"
 
-    let allPostsHtml  = renderTemplate (Map.fromList [("content", indexHtml)]) baseHtml
-    let renderIndex   = renderTemplateFlipped allPostsHtml
-    let renderPost    = renderTemplateFlipped postHtml
-    let renderOnePost = renderTemplateFlipped baseHtml
-    let postsToHtml = concatMap (renderPost . uncurry dictForPost) 
-
-    let hostname = "http://127.0.0.1:3000" :: String
-
     S.scotty 3000 $ do
         S.get "/" $ do
             allPostsEnt <- liftIO $ runDb $ selectList ([] :: [Filter Post]) [Desc PostCreated]
             tags <- liftIO . runDb $ mapM (selectManyToMany TagPostPostId tagPostTagId . entityKey) allPostsEnt
-            S.html $ pack $ renderIndex $
-                Map.fromList [("posts", postsToHtml $ zip tags allPostsEnt), ("form", formHtml)]
+            let posts = map renderPost $ zip allPostsEnt tags
+            let content = $(shamletFile "./templates/list_of_posts.hamlet")
+            S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
         S.get "/bytag/:tagName" $ do
             tagName <- S.param "tagName"
@@ -124,8 +118,11 @@ main = do
                 Just tagEnt -> do
                     allPostsEnt <- liftIO $ runDb $ selectManyToMany TagPostTagId tagPostPostId $ entityKey tagEnt
                     tags <- liftIO . runDb $ mapM (selectManyToMany TagPostPostId tagPostTagId . entityKey) allPostsEnt
-                    S.html $ pack $ renderIndex $
-                        Map.fromList [("posts", postsToHtml $ zip tags allPostsEnt), ("form", formHtml)]
+                    let posts = map renderPost $ zip allPostsEnt tags
+                    let content = $(shamletFile "./templates/list_of_posts.hamlet")
+                    S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
+                    --S.html $ pack $ renderIndex $
+                    --Map.fromList [("posts", postsToHtml $ zip tags allPostsEnt), ("form", formHtml)] 
 
         S.get "/post/:id" $ do
             id <- S.param "id"
@@ -136,7 +133,7 @@ main = do
                 Just post -> do
                     tags <- liftIO . runDb $ selectManyToMany TagPostPostId tagPostTagId key
                     let content = $(shamletFile "./templates/post.hamlet")
-                    S.html $ pack $ renderHtml $ $(shamletFile "./templates/base.hamlet")
+                    S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
         S.post "/addPost" $ do
             caption <- S.param "caption"
@@ -150,5 +147,13 @@ main = do
             id <- S.param "id"
             let key = (toSqlKey $ read id) :: Key Post
             liftIO . runDb $ delete key
-            S.redirect "http://127.0.0.1:3000/"
+            S.redirect $ pack hostname
+
+    where
+        renderPost (postEnt, tags) = $(shamletFile "./templates/post.hamlet")
+            where 
+                post = entityVal postEnt
+                id   = show . unSqlBackendKey . unPostKey $ entityKey postEnt
+        hostname = "http://127.0.0.1:3000" :: String
+        postForm = $(shamletFile "./templates/postForm.hamlet")
 
