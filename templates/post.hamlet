@@ -4,3 +4,6 @@
     <h5>#{show (postCreated post)}
     <div class="post-text">
         <h5>#{postText post}
+    <h5> Tags:
+        $forall tag <- tags
+            <a href="#{hostname}/bytag/#{tagName (entityVal tag)}">#{tagName (entityVal tag)}

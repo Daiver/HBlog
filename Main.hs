@@ -107,6 +107,8 @@ main = do
     let renderOnePost = renderTemplateFlipped baseHtml
     let postsToHtml = concatMap (renderPost . uncurry dictForPost) 
 
+    let hostname = "http://127.0.0.1:3000" :: String
+
     S.scotty 3000 $ do
         S.get "/" $ do
             allPostsEnt <- liftIO $ runDb $ selectList ([] :: [Filter Post]) [Desc PostCreated]
@@ -133,8 +135,8 @@ main = do
                 Nothing -> S.html "No post"
                 Just post -> do
                     tags <- liftIO . runDb $ selectManyToMany TagPostPostId tagPostTagId key
-                    --S.html $ pack $ renderOnePost $ Map.fromList [("content", renderPost $ dictForPost tags (Entity key x))]
-                    S.html $ pack $ renderHtml $ $(shamletFile "./templates/post.hamlet")
+                    let content = $(shamletFile "./templates/post.hamlet")
+                    S.html $ pack $ renderHtml $ $(shamletFile "./templates/base.hamlet")
 
         S.post "/addPost" $ do
             caption <- S.param "caption"
@@ -149,3 +151,4 @@ main = do
             let key = (toSqlKey $ read id) :: Key Post
             liftIO . runDb $ delete key
             S.redirect "http://127.0.0.1:3000/"
+
