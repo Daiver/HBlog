@@ -69,17 +69,6 @@ selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
     res <- mapM (getJust . sourceFieldSelector . entityVal) proxyEntities
     return $ zipWith (\prx rs -> Entity (sourceFieldSelector $ entityVal prx) rs) proxyEntities res
 
-dictForPost :: [Entity Tag] -> Entity Post -> Map.Map String String
-dictForPost tags postEntity = Map.fromList [
-        ("id", show . unSqlBackendKey . unPostKey $ entityKey postEntity), 
-        ("caption", postCaption post), 
-        ("text", postText post), 
-        ("tags", tagsLine),
-        ("created", show $ postCreated post)]
-    where
-        tagsLine = unwords $ map (tagName . entityVal) tags
-        post = entityVal postEntity
-
 addPostToDb caption text time tags = do 
         tagsIds <- mapM insertIfNotExists (words tags) 
         pid <- insert $ Post caption text time 
@@ -97,10 +86,6 @@ persistInt64FromParam = PersistInt64 . fromIntegral . read
 
 main = do
     runDb $ runMigration migrateAll
-    baseHtml  <- readFile "templates/base.html"
-    indexHtml <- readFile "templates/index.html"
-    formHtml  <- readFile "templates/newPostForm.html"
-    postHtml  <- readFile "templates/post.html"
 
     S.scotty 3000 $ do
         S.get "/" $ do
@@ -121,8 +106,6 @@ main = do
                     let posts = map renderPost $ zip allPostsEnt tags
                     let content = $(shamletFile "./templates/list_of_posts.hamlet")
                     S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
-                    --S.html $ pack $ renderIndex $
-                    --Map.fromList [("posts", postsToHtml $ zip tags allPostsEnt), ("form", formHtml)] 
 
         S.get "/post/:id" $ do
             id <- S.param "id"
