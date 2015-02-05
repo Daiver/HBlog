@@ -79,7 +79,6 @@ addPostToDb caption text time tags = do
                 Just val -> return $ entityKey val
                 Nothing  -> return =<< insert $ Tag tag ""
 
-
 runDb = runSqlite "/home/daiver/jour.sqlite3"
 
 persistInt64FromParam = PersistInt64 . fromIntegral . read 
@@ -91,7 +90,7 @@ main = do
         S.get "/" $ do
             allPostsEnt <- liftIO $ runDb $ selectList ([] :: [Filter Post]) [Desc PostCreated]
             tags <- liftIO . runDb $ mapM (selectManyToMany TagPostPostId tagPostTagId . entityKey) allPostsEnt
-            let posts = map renderPost $ zip allPostsEnt tags
+            let posts = zipWith (curry renderPost) allPostsEnt tags
             let content = $(shamletFile "./templates/list_of_posts.hamlet")
             S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
@@ -103,7 +102,7 @@ main = do
                 Just tagEnt -> do
                     allPostsEnt <- liftIO $ runDb $ selectManyToMany TagPostTagId tagPostPostId $ entityKey tagEnt
                     tags <- liftIO . runDb $ mapM (selectManyToMany TagPostPostId tagPostTagId . entityKey) allPostsEnt
-                    let posts = map renderPost $ zip allPostsEnt tags
+                    let posts = zipWith (curry renderPost) allPostsEnt tags
                     let content = $(shamletFile "./templates/list_of_posts.hamlet")
                     S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
