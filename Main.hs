@@ -38,9 +38,9 @@ import qualified Data.String.Utils as SUtils
 
 import Data.Time.Clock
 
-import HtmlTemplater
+import Model
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
+{-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User
     name     String
     password String
@@ -62,7 +62,7 @@ TagPost
     tagId         TagId
     UniqueTagPost tagId postId
 
-|]
+|] -}
 
 selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
     proxyEntities <- selectList [targetFieldSelector ==. targetId] []
