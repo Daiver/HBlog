@@ -33,41 +33,17 @@ import Database.Persist.Types
 import Text.Blaze.Html.Renderer.String
 import Text.Hamlet
 
-import qualified Data.Text.Lazy.IO as TLIO
 import qualified Data.String.Utils as SUtils
 
 import Data.Time.Clock
 
 import Model
 
-{-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-User
-    name     String
-    password String
-    deriving Show
-
-Tag
-    name String
-    description String
-    UniqueName name
-
-Post
-    caption String
-    text    String
-    created UTCTime
-    deriving Show
-
-TagPost
-    postId        PostId
-    tagId         TagId
-    UniqueTagPost tagId postId
-
-|] -}
-
 selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
     proxyEntities <- selectList [targetFieldSelector ==. targetId] []
     res <- mapM (getJust . sourceFieldSelector . entityVal) proxyEntities
-    return $ zipWith (\prx rs -> Entity (sourceFieldSelector $ entityVal prx) rs) proxyEntities res
+    return $ zipWith 
+        (\prx rs -> Entity (sourceFieldSelector $ entityVal prx) rs) proxyEntities res
 
 addPostToDb caption text time tags = do 
         tagsIds <- mapM insertIfNotExists (words tags) 
