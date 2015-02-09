@@ -1,4 +1,4 @@
-<form id=frm method=POST action='#{hostname}/addPost'>
+<form id=frm method=POST action=#{hostname}/addPost>
     Caption
     <input id=txt name=caption>
     <br>
