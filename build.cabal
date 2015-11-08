@@ -1,9 +1,9 @@
 Name:           HBlog
-Version:        0.1
+Version:        0.2
 Cabal-Version:  >= 1.2
 License:        BSD3
 Author:         Dark Daiver
-Synopsis:       Small package with program and tests
+Synopsis:       Primitive blog
 Build-Type:     Simple
 
 Executable Main

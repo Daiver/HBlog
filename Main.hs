@@ -37,6 +37,7 @@ import qualified Data.String.Utils as SUtils
 
 import Data.Time.Clock
 
+import Config
 import Model
 
 selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
@@ -55,7 +56,8 @@ addPostToDb caption text time tags = do
                 Just val -> return $ entityKey val
                 Nothing  -> return =<< insert $ Tag tag ""
 
-runDb = runSqlite "/home/daiver/jour.sqlite3"
+runDb = runSqlite Config.sqliteDbName
+{-runDb = Config.runDb-}
 
 persistInt64FromParam = PersistInt64 . fromIntegral . read 
 
@@ -105,13 +107,12 @@ main = do
             id <- S.param "id"
             let key = (toSqlKey $ read id) :: Key Post
             liftIO . runDb $ delete key
-            S.redirect $ pack hostname
+            S.redirect $ pack Config.hostname
 
     where
         renderPost (postEnt, tags) = $(shamletFile "./templates/post.hamlet")
             where 
                 post = entityVal postEnt
                 id   = show . unSqlBackendKey . unPostKey $ entityKey postEnt
-        hostname = "http://127.0.0.1:3000" :: String
         postForm = $(shamletFile "./templates/postForm.hamlet")
 

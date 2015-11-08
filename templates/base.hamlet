@@ -27,7 +27,7 @@
     <div class="container">
         <h2>
             <a href="/">
-                The Great Nothing
+                #{Config.blogCaption}
         <br>
         ^{content}
 
