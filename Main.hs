@@ -78,7 +78,7 @@ main = do
                 Just tagEnt -> do
                     allPostsEnt <- liftIO $ runDb $ selectManyToMany TagPostTagId tagPostPostId $ entityKey tagEnt
                     tags <- liftIO . runDb $ mapM (selectManyToMany TagPostPostId tagPostTagId . entityKey) allPostsEnt
-                    let posts = zipWith (curry renderPost) allPostsEnt tags
+                    let posts = reverse $ zipWith (curry renderPost) allPostsEnt tags
                     let content = $(shamletFile "./templates/list_of_posts.hamlet")
                     S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
