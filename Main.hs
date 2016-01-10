@@ -95,6 +95,19 @@ main = do
                     let content = $(shamletFile "./templates/post.hamlet")
                     S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
 
+        S.get "/updatepost/:id" $ do
+            id <- S.param "id"
+            let key = toSqlKey $ read id
+            t <- liftIO . runDb $ get (key::Key Post)
+            case t of
+                Nothing -> S.html "No post"
+                Just post -> do
+                    tagsTmp <- liftIO . runDb $ selectManyToMany TagPostPostId tagPostTagId key
+                    let tags = unwords $ map (tagName . entityVal) tagsTmp
+                    let content = $(shamletFile "./templates/postUpdate.hamlet")
+                    S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
+
+
         S.post "/addPost" $ do
             caption <- S.param "caption"
             text <- S.param "text"
@@ -102,6 +115,16 @@ main = do
             currTime <- liftIO getCurrentTime
             postId <- liftIO . runDb $ addPostToDb caption text currTime tags
             S.redirect $ pack ("/post/" ++ (show . unSqlBackendKey . unPostKey $ postId))
+
+        S.post "/updatePost" $ do
+            caption <- S.param "caption"
+            text <- S.param "text"
+            tags <- S.param "tags" 
+            currTime <- liftIO getCurrentTime
+            postId <- liftIO . runDb $ addPostToDb caption text currTime tags
+            S.redirect $ pack ("/post/" ++ (show . unSqlBackendKey . unPostKey $ postId))
+
+
 
         S.get "/deletepost/:id" $ do
             id <- S.param "id"
