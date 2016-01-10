@@ -46,25 +46,24 @@ selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
     return $ zipWith 
         (\prx rs -> Entity (sourceFieldSelector $ entityVal prx) rs) proxyEntities res
 
+insertEntityIfNotExistsAndGetIds unique valueToInsert = 
+    getBy unique >>= \tgs -> case tgs of
+        Just val -> return $ entityKey val
+        Nothing  -> return =<< insert $ valueToInsert
+
+insertTagIfNotExistsAndGetTagsIds tagName = insertEntityIfNotExistsAndGetIds (UniqueName tagName) (Tag tagName "")
 
 addPostToDb caption text time tags = do 
-        tagsIds <- mapM insertIfNotExists (words tags) 
-        pid <- insert $ Post caption text time 
-        mapM_ (insert . TagPost pid) tagsIds
-        return pid
-    where insertIfNotExists tag = 
-            getBy (UniqueName tag) >>= \tgs -> case tgs of
-                Just val -> return $ entityKey val
+    tagsIds <- mapM insertTagIfNotExistsAndGetTagsIds (words tags) 
+    pid <- insert $ Post caption text time 
+    mapM_ (insert . TagPost pid) tagsIds
+    return pid
 
 updatePostInDb pid caption text = do 
-        {-tagsIds <- mapM insertIfNotExists (words tags) -}
-        update pid [PostText =. text, PostCaption =. caption] 
-        {-mapM_ (insert . TagPost pid) tagsIds-}
-        return pid
-    where insertIfNotExists tag = 
-            getBy (UniqueName tag) >>= \tgs -> case tgs of
-                Just val -> return $ entityKey val
-                Nothing  -> return =<< insert $ Tag tag ""
+    {-tagsIds <- mapM insertIfNotExists (words tags) -}
+    update pid [PostText =. text, PostCaption =. caption] 
+    {-mapM_ (insert . TagPost pid) tagsIds-}
+    return pid
 
 runDb = runSqlite Config.sqliteDbName
 
