@@ -51,7 +51,8 @@ insertEntityIfNotExistsAndGetIds unique valueToInsert =
         Just val -> return $ entityKey val
         Nothing  -> return =<< insert $ valueToInsert
 
-insertTagIfNotExistsAndGetTagsIds tagName = insertEntityIfNotExistsAndGetIds (UniqueName tagName) (Tag tagName "")
+insertTagIfNotExistsAndGetTagsIds tagName = 
+        insertEntityIfNotExistsAndGetIds (UniqueName tagName) (Tag tagName "")
 
 addPostToDb caption text time tags = do 
     tagsIds <- mapM insertTagIfNotExistsAndGetTagsIds (words tags) 
@@ -140,6 +141,10 @@ main = do
         S.get "/deletepost/:id" $ do
             id <- S.param "id"
             let key = (toSqlKey $ read id) :: Key Post
+            tagPostIds <- liftIO . runDb $ selectList [TagPostPostId ==. key] []
+            mapM_ (liftIO . runDb . delete . entityKey) tagPostIds
+            {-getBy unique >>= \tgs -> case tgs of-}
+
             liftIO . runDb $ delete key
             S.redirect $ pack Config.hostname
 
