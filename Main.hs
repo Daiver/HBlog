@@ -46,6 +46,7 @@ selectManyToMany targetFieldSelector sourceFieldSelector targetId = do
     return $ zipWith 
         (\prx rs -> Entity (sourceFieldSelector $ entityVal prx) rs) proxyEntities res
 
+
 addPostToDb caption text time tags = do 
         tagsIds <- mapM insertIfNotExists (words tags) 
         pid <- insert $ Post caption text time 
@@ -54,10 +55,18 @@ addPostToDb caption text time tags = do
     where insertIfNotExists tag = 
             getBy (UniqueName tag) >>= \tgs -> case tgs of
                 Just val -> return $ entityKey val
+
+updatePostInDb pid caption text = do 
+        {-tagsIds <- mapM insertIfNotExists (words tags) -}
+        update pid [PostText =. text, PostCaption =. caption] 
+        {-mapM_ (insert . TagPost pid) tagsIds-}
+        return pid
+    where insertIfNotExists tag = 
+            getBy (UniqueName tag) >>= \tgs -> case tgs of
+                Just val -> return $ entityKey val
                 Nothing  -> return =<< insert $ Tag tag ""
 
 runDb = runSqlite Config.sqliteDbName
-{-runDb = Config.runDb-}
 
 persistInt64FromParam = PersistInt64 . fromIntegral . read 
 
@@ -118,13 +127,16 @@ main = do
 
         S.post "/updatePost" $ do
             caption <- S.param "caption"
-            text <- S.param "text"
-            tags <- S.param "tags" 
-            currTime <- liftIO getCurrentTime
-            postId <- liftIO . runDb $ addPostToDb caption text currTime tags
-            S.redirect $ pack ("/post/" ++ (show . unSqlBackendKey . unPostKey $ postId))
-
-
+            id <- S.param "id"
+            let key = toSqlKey $ read id
+            t <- liftIO . runDb $ get (key::Key Post)
+            case t of
+                Nothing -> S.html "No post"
+                Just post -> do
+                    text <- S.param "text"
+                    {-tags <- S.param "tags" -}
+                    postId <- liftIO . runDb $ updatePostInDb key caption text 
+                    S.redirect $ pack ("/post/" ++ (show . unSqlBackendKey . unPostKey $ postId))
 
         S.get "/deletepost/:id" $ do
             id <- S.param "id"

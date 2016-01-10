@@ -1,4 +1,5 @@
 <form id=frm method=POST action=#{hostname}/updatePost>
+    <input type=hidden name=id value=#{id}>
     Caption
     <input id=txt name=caption value=#{postCaption post}>
     <br>
