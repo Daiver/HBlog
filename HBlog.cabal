@@ -17,7 +17,7 @@ Executable Main
                   persistent-sqlite ,
                   persistent-template ,
                   shakespeare,
-                  shakespeare-text,
+                  --shakespeare-text,
                   blaze-html,
                   MissingH 
   Main-Is:        Main.hs
