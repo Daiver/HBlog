@@ -148,6 +148,12 @@ main = do
             liftIO . runDb $ delete key
             S.redirect $ pack Config.hostname
 
+        S.get "/tags" $ do
+            tagsEnts <- liftIO . runDb $ selectList ([] :: [Filter Tag]) []
+            let tags = map entityVal tagsEnts
+            let content = $(shamletFile "./templates/list_of_tags.hamlet")
+            S.html $ pack $ renderHtml $(shamletFile "./templates/base.hamlet")
+
     where
         renderPost (postEnt, tags) = $(shamletFile "./templates/post.hamlet")
             where 

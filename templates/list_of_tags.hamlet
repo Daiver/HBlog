@@ -1,0 +1,8 @@
+<h2>
+    Tags:
+
+<ul>
+    $forall tag <- tags
+        <li> 
+            <a href="#{hostname}/bytag/#{tagName tag}">
+                #{tagName tag}

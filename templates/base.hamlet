@@ -28,6 +28,8 @@
         <h2>
             <a href="/">
                 #{Config.blogCaption}
+        <h5>
+            <a href="#{hostname}/tags"> tags
         <br>
         ^{content}
 
