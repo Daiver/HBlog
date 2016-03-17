@@ -6,3 +6,4 @@
         <li> 
             <a href="#{hostname}/bytag/#{tagName tag}">
                 #{tagName tag}
+            - #{tagDescription tag}
